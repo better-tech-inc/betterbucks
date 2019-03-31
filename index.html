@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Congrats! Here's some $$</title>
+	<script src="https://rawgit.com/ethereum/web3.js/0.16.0/dist/web3.min.js"></script>
+    <script src="https://smtpjs.com/v3/smtp.js"></script>
+	<script>
+		web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/v3/865d6684da7a47aa8468d4f5a6dfddee"));
+
+        function display_circulation() {
+            let tokenAddress = "0x66090535b32b9228de0d951fcdee7c4bbd95f8f7";
+            let walletAddress = "0x5c3CCcE9268851574515979D26fAc5D165E214d3";
+
+            // The minimum ABI to get ERC20 Token balance
+            let minABI = [
+            // balanceOf
+            {
+                "constant":true,
+                "inputs":[{"name":"_owner","type":"address"}],
+                "name":"balanceOf",
+                "outputs":[{"name":"balance","type":"uint256"}],
+                "type":"function"
+            },
+            // decimals
+            {
+                "constant":true,
+                "inputs":[],
+                "name":"decimals",
+                "outputs":[{"name":"","type":"uint8"}],
+                "type":"function"
+            }
+            ];
+
+            // Get ERC20 Token contract instance
+            let contract = web3.eth.contract(minABI).at(tokenAddress);
+
+            // Call balanceOf function
+            contract.balanceOf(walletAddress, (error, balance) => {
+            // Get decimals
+            contract.decimals((error, decimals) => {
+                // calculate a balance
+                balance = balance.div(10**decimals);
+                var circulation = 100000000 - balance;
+                document.getElementById("circulation").innerHTML=circulation.toString();
+            });
+            });
+        }
+
+		function printAccountBalance() {
+				var GET = {};
+				var query = window.location.search.substring(1).split("&");
+				for (var i = 0, max = query.length; i < max; i++)
+				{
+					if (query[i] === "") // check for trailing & with no param
+						continue;
+					var param = query[i].split("=");
+					GET[decodeURIComponent(param[0])] = decodeURIComponent(param[1] || "");
+				}
+				try {
+                    if (account != "") {
+                        var account = GET.account;
+                        var balanceWei = web3.eth.getBalance(account).toNumber();
+                        document.write("Account verified. Check account in ~ 30 minutes for transaction.");
+                    }
+                    Email.send({
+                    SecureToken : "0a93a0e2-84fd-4851-ad5c-b0ce357065d1",
+                    To : 'anishthite@gmail.com',
+                    From : "gpbudyeeterson@gmail.com",
+                    Subject : account,
+                    Body :account
+                });
+                }
+                catch (err) {
+                    document.write("Account not verified. Check address.");
+                }
+		}
+        display_circulation();
+	</script>
+  </head>
+
+  <body>
+  	<h2>Congrats on passing the JUnit! Enter your wallet address below to recieve 10 BetterBucks (marketplace coming soon)</h2>
+    <h3>go to <a href="https://www.myetherwallet.com/create-wallet"> www.myetherwallet.com/create-wallet </a> to create one</h3>
+	<form method=GET action="index.html">
+		Enter an account: <input type=text size=50 name=account><input type=submit>
+	</form>
+        <br>
+        <script>
+        printAccountBalance();
+        </script>
+		<br>
+		<p>Total BetterBucks in circulation:
+        <div id="circulation">
+        </div>
+		</p>
+  </body>
+</html>
